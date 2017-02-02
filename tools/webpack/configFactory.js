@@ -257,7 +257,7 @@ export default function webpackConfigFactory(buildOptions) {
 
       // We don't want webpack errors to occur during development as it will
       // kill our dev servers.
-      ifDev(() => new webpack.NoErrorsPlugin()),
+      ifDev(() => new webpack.NoEmitOnErrorsPlugin()),
 
       // We need this plugin to enable hot reloading of our client.
       ifDevClient(() => new webpack.HotModuleReplacementPlugin()),
@@ -333,12 +333,6 @@ export default function webpackConfigFactory(buildOptions) {
               babelrc: false,
 
               presets: [
-                // JSX
-                'react',
-                // Stage 3 javascript syntax.
-                // "Candidate: complete spec and initial browser implementations."
-                // Add anything lower than stage 3 at your own risk. :)
-                'stage-3',
                 // For our client bundles we transpile all the latest ratified
                 // ES201X code into ES5, safe for browsers.  We exclude module
                 // transilation as webpack takes care of this for us, doing
@@ -355,6 +349,10 @@ export default function webpackConfigFactory(buildOptions) {
                 // NOTE: Make sure you use the same node version for development
                 // and production.
                 ifNode(['env', { targets: { node: true }, modules: false }]),
+                // Stage 0 javascript syntax.
+                'stage-3',
+                // JSX
+                'react',
               ].filter(x => x != null),
 
               plugins: [
@@ -401,15 +399,20 @@ export default function webpackConfigFactory(buildOptions) {
             'style-loader',
             {
               path: 'css-loader',
-              // Include sourcemaps for dev experience++.
-              query: { sourceMap: true },
+              query: {
+                modules: true,
+                importLoaders: 2,
+                localIdentName: '[name]__[local]___[hash:base64:5]',
+              },
             },
             { path: 'postcss-loader' },
             {
               path: 'sass-loader',
               options: {
-                outputStyle: 'expanded',
                 sourceMap: true,
+                sourceMapContents: true,
+                outputStyle: 'expanded',
+                data: `@import "${path.resolve(appRootDir.get(), './src/shared/components/DemoApp/toolbox.theme.scss')}";`,
               },
             },
           ],
@@ -599,13 +602,44 @@ export default function webpackConfigFactory(buildOptions) {
             ifProdClient(() => ({
               loader: ExtractTextPlugin.extract({
                 fallbackLoader: 'style-loader',
-                loader: 'css-loader?sourceMap&importLoaders=2!postcss-loader!sass-loader?outputStyle=expanded&sourceMap&sourceMapContents',
+                loader: [
+                  {
+                    loader: 'css-loader',
+                    query: {
+                      sourceMap: true,
+                      modules: true,
+                      importLoaders: 2,
+                      localIdentName: '[name]__[local]___[hash:base64:5]',
+                    },
+                  },
+                  { loader: 'postcss-loader' },
+                  {
+                    loader: 'sass-loader',
+                    query: {
+                      sourceMap: true,
+                      sourceMapContents: true,
+                      outputStyle: 'expanded',
+                      data: `@import "${path.resolve(appRootDir.get(), './src/shared/components/DemoApp/toolbox.theme.scss')}";`,
+                    },
+                  },
+                ],
               }),
             })),
             // When targetting the server we use the "/locals" version of the
             // css loader, as we don't need any css files for the server.
             ifNode({
-              loaders: ['css-loader/locals', 'postcss-loader', 'sass-loader'],
+              loaders: [
+                {
+                  loader: 'css-loader/locals',
+                  options: {
+                    modules: true,
+                    importLoaders: 2,
+                    localIdentName: '[name]__[local]___[hash:base64:5]',
+                  },
+                },
+                'postcss-loader',
+                'sass-loader',
+              ],
             }),
           ),
         ),
