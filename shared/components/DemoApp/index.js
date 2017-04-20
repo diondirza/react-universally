@@ -7,7 +7,7 @@ import Helmet from 'react-helmet';
 
 import config from '../../../config';
 
-import './globals.css';
+import './globals.scss';
 
 import Error404 from './Error404';
 import Header from './Header';
@@ -105,10 +105,6 @@ function DemoApp() {
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css"
         />
       </Helmet>
       <Header />

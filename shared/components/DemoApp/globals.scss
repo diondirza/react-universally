@@ -1,8 +1,12 @@
-$fontfam: 'Arial', sans-serif;
+$fontfam: Roboto, Arial, sans-serif;
 
 html {
   box-sizing: border-box;
-  font-family: $fontfam;
+  font: {
+    family: $fontfam;
+    size: 16px;
+    weight: 300;
+  }
 }
 
 *,
@@ -11,6 +15,21 @@ html {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  line-height: 1.4;
 }
 
 /* Inline our ul for our menu */

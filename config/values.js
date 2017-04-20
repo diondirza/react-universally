@@ -146,6 +146,7 @@ const values = {
     /\.(svg|png|jpg|jpeg|gif|ico)$/,
     /\.(mp4|mp3|ogg|swf|webp)$/,
     /\.(css|scss|sass|sss|less)$/,
+    /react-toolbox/,
   ],
 
   // Note: you can only have a single service worker instance.  Our service

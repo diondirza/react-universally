@@ -402,6 +402,7 @@ export default function webpackConfigFactory(buildOptions) {
       }),
 
       // HappyPack 'css' instance for development client.
+      // HappyPack 'css' instance for development client.
       ifDevClient(() =>
         happyPackPlugin({
           name: 'happypack-devclient-css',
@@ -409,8 +410,21 @@ export default function webpackConfigFactory(buildOptions) {
             'style-loader',
             {
               path: 'css-loader',
-              // Include sourcemaps for dev experience++.
-              query: { sourceMap: true },
+              query: {
+                modules: true,
+                importLoaders: 2,
+                localIdentName: '[name]__[local]___[hash:base64:5]',
+              },
+            },
+            { path: 'postcss-loader' },
+            {
+              path: 'sass-loader',
+              options: {
+                sourceMap: true,
+                sourceMapContents: true,
+                outputStyle: 'expanded',
+                data: `@import "${path.resolve(appRootDir.get(), './shared/components/DemoApp/toolbox.theme.scss')}";`,
+              },
             },
           ],
         }),
@@ -442,7 +456,7 @@ export default function webpackConfigFactory(buildOptions) {
         ifElse(isClient || isServer)(
           mergeDeep(
             {
-              test: /\.css$/,
+              test: /\.s?css$/,
             },
             // For development clients we will defer all our css processing to the
             // happypack plugin named "happypack-devclient-css".
@@ -459,14 +473,45 @@ export default function webpackConfigFactory(buildOptions) {
             // plugins section too.
             ifProdClient(() => ({
               loader: ExtractTextPlugin.extract({
-                fallback: 'style-loader',
-                use: ['css-loader'],
+                fallbackLoader: 'style-loader',
+                loader: [
+                  {
+                    loader: 'css-loader',
+                    query: {
+                      sourceMap: true,
+                      modules: true,
+                      importLoaders: 2,
+                      localIdentName: '[name]__[local]___[hash:base64:5]',
+                    },
+                  },
+                  { loader: 'postcss-loader' },
+                  {
+                    loader: 'sass-loader',
+                    query: {
+                      sourceMap: true,
+                      sourceMapContents: true,
+                      outputStyle: 'expanded',
+                      data: `@import "${path.resolve(appRootDir.get(), './src/shared/components/DemoApp/toolbox.theme.scss')}";`,
+                    },
+                  },
+                ],
               }),
             })),
             // When targetting the server we use the "/locals" version of the
             // css loader, as we don't need any css files for the server.
             ifNode({
-              loaders: ['css-loader/locals'],
+              loaders: [
+                {
+                  loader: 'css-loader/locals',
+                  options: {
+                    modules: true,
+                    importLoaders: 2,
+                    localIdentName: '[name]__[local]___[hash:base64:5]',
+                  },
+                },
+                'postcss-loader',
+                'sass-loader',
+              ],
             }),
           ),
         ),
