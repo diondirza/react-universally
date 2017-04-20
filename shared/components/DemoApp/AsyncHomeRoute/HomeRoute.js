@@ -17,7 +17,7 @@ class HomeRoute extends Component {
 
   render() {
     return (
-      <article>
+      <div>
         <Helmet>
           <title>Home</title>
         </Helmet>
@@ -38,7 +38,7 @@ class HomeRoute extends Component {
           value={this.state.notes}
           onChange={value => this.handleChange('notes', value)}
         />
-      </article>
+      </div>
     );
   }
 }
