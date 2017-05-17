@@ -402,10 +402,28 @@ export default function webpackConfigFactory(buildOptions) {
       }),
 
       // HappyPack 'css' instance for development client.
-      // HappyPack 'css' instance for development client.
       ifDevClient(() =>
         happyPackPlugin({
-          name: 'happypack-devclient-css',
+          name: 'css',
+          loaders: [
+            'style-loader',
+            {
+              path: 'css-loader',
+              query: {
+                modules: true,
+                importLoaders: 1,
+                localIdentName: '[name]__[local]___[hash:base64:5]',
+              },
+            },
+            'postcss-loader',
+          ],
+        }),
+      ),
+
+      // HappyPack 'scss' instance for development client.
+      ifDevClient(() =>
+        happyPackPlugin({
+          name: 'scss',
           loaders: [
             'style-loader',
             {
@@ -416,14 +434,14 @@ export default function webpackConfigFactory(buildOptions) {
                 localIdentName: '[name]__[local]___[hash:base64:5]',
               },
             },
-            { path: 'postcss-loader' },
+            'postcss-loader',
             {
               path: 'sass-loader',
-              options: {
+              query: {
                 sourceMap: true,
                 sourceMapContents: true,
                 outputStyle: 'expanded',
-                data: `@import "${path.resolve(appRootDir.get(), './shared/components/DemoApp/toolbox.theme.scss')}";`,
+                includePaths: [path.resolve(appRootDir.get(), './node_modules/compass-mixins/lib')],
               },
             },
           ],
@@ -456,29 +474,68 @@ export default function webpackConfigFactory(buildOptions) {
         ifElse(isClient || isServer)(
           mergeDeep(
             {
-              test: /\.s?css$/,
+              test: /\.css$/,
             },
-            // For development clients we will defer all our css processing to the
-            // happypack plugin named "happypack-devclient-css".
-            // See the respective plugin within the plugins section for full
-            // details on what loader is being implemented.
             ifDevClient({
-              loaders: ['happypack/loader?id=happypack-devclient-css'],
+              loaders: ['happypack/loader?id=css'],
             }),
-            // For a production client build we use the ExtractTextPlugin which
-            // will extract our CSS into CSS files. We don't use happypack here
-            // as there are some edge cases where it fails when used within
-            // an ExtractTextPlugin instance.
-            // Note: The ExtractTextPlugin needs to be registered within the
-            // plugins section too.
             ifProdClient(() => ({
               loader: ExtractTextPlugin.extract({
-                fallbackLoader: 'style-loader',
-                loader: [
+                fallback: 'style-loader',
+                use: [
                   {
                     loader: 'css-loader',
-                    query: {
+                    options: {
+                      modules: true,
+                      importLoaders: 1,
+                      localIdentName: '[name]__[local]___[hash:base64:5]',
+                    },
+                  },
+                  {
+                    loader: 'postcss-loader',
+                    options: {
                       sourceMap: true,
+                      sourceComments: true,
+                    },
+                  },
+                ],
+              }),
+            })),
+            ifNode({
+              loaders: [
+                {
+                  loader: 'css-loader/locals',
+                  options: {
+                    modules: true,
+                    importLoaders: 1,
+                    localIdentName: '[name]__[local]___[hash:base64:5]',
+                  },
+                },
+                'postcss-loader',
+              ],
+            }),
+          ),
+        ),
+
+        // SCSS
+        // This is bound to our server/client bundles as we only expect to be
+        // serving the client bundle as a Single Page Application through the
+        // server.
+        ifElse(isClient || isServer)(
+          mergeDeep(
+            {
+              test: /\.scss$/,
+            },
+            ifDevClient({
+              loaders: ['happypack/loader?id=scss'],
+            }),
+            ifProdClient(() => ({
+              loader: ExtractTextPlugin.extract({
+                fallback: 'style-loader',
+                use: [
+                  {
+                    loader: 'css-loader',
+                    options: {
                       modules: true,
                       importLoaders: 2,
                       localIdentName: '[name]__[local]___[hash:base64:5]',
@@ -487,18 +544,16 @@ export default function webpackConfigFactory(buildOptions) {
                   { loader: 'postcss-loader' },
                   {
                     loader: 'sass-loader',
-                    query: {
-                      sourceMap: true,
-                      sourceMapContents: true,
+                    options: {
                       outputStyle: 'expanded',
-                      data: `@import "${path.resolve(appRootDir.get(), './src/shared/components/DemoApp/toolbox.theme.scss')}";`,
+                      includePaths: [
+                        path.resolve(appRootDir.get(), './node_modules/compass-mixins/lib'),
+                      ],
                     },
                   },
                 ],
               }),
             })),
-            // When targetting the server we use the "/locals" version of the
-            // css loader, as we don't need any css files for the server.
             ifNode({
               loaders: [
                 {
