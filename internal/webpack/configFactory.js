@@ -316,7 +316,7 @@ export default function webpackConfigFactory(buildOptions) {
       ifProdClient(
         () =>
           new ExtractTextPlugin({
-            filename: '[name]-[chunkhash].css',
+            filename: '[name]-[contenthash].css',
             allChunks: true,
           }),
       ),

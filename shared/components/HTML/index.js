@@ -1,4 +1,5 @@
 /* eslint-disable react/no-danger */
+/* eslint-disable jsx-a11y/html-has-lang */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -10,18 +11,15 @@ function HTML(props) {
   const { htmlAttributes, headerElements, bodyElements, appBodyString } = props;
 
   return (
-    // eslint-disable-next-line jsx-a11y/html-has-lang
-    (
-      <html {...htmlAttributes}>
-        <head>
-          {headerElements}
-        </head>
-        <body>
-          <div id="app" dangerouslySetInnerHTML={{ __html: appBodyString }} />
-          {bodyElements}
-        </body>
-      </html>
-    )
+    <html {...htmlAttributes}>
+      <head>
+        {headerElements}
+      </head>
+      <body>
+        <div id="app" dangerouslySetInnerHTML={{ __html: appBodyString }} />
+        {bodyElements}
+      </body>
+    </html>
   );
 }
 
