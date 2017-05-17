@@ -15,6 +15,7 @@ const pathResolve = require('path').resolve;
 // Inspired by "create-react-app". Thanks @gaearon :)
 function checkNodeVersion() {
   const semver = require('semver');
+  const packageJson = require('../../package.json');
 
   if (!semver.satisfies(process.version, packageJson.engines.node)) {
     console.error(
