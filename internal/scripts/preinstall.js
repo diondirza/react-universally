@@ -8,33 +8,34 @@
 
 /* eslint-disable */
 
-const exec = require('child_process').exec;
-const existsSync = require('fs').existsSync;
-const pathResolve = require('path').resolve;
+const exec = require("child_process").exec;
+const existsSync = require("fs").existsSync;
+const pathResolve = require("path").resolve;
 
 // Inspired by "create-react-app". Thanks @gaearon :)
 function checkNodeVersion() {
-  const semver = require('semver');
-  const packageJson = require('../../package.json');
+  const semver = require("semver");
+  const packageJson = require("../../package.json");
 
   if (!semver.satisfies(process.version, packageJson.engines.node)) {
+    // prettier-ignore
     console.error(
       'You are currently running Node %s but %s requires %s. Please use a supported version of Node.\n',
       process.version,
       packageJson.name,
-      packageJson.engines.node,
+      packageJson.engines.node
     );
     process.exit(1);
   }
 }
 
 function checkModules() {
-  if (existsSync(pathResolve(__dirname, '../../node_modules'))) {
+  if (existsSync(pathResolve(__dirname, "../../node_modules"))) {
     // An install has already occurred.
     return;
   }
 
-  const packageJson = require('../../package.json');
+  const packageJson = require("../../package.json");
   if (
     !packageJson.engines ||
     !packageJson.engines.node ||
@@ -45,10 +46,11 @@ function checkModules() {
     return;
   }
 
+  // prettier-ignore
   exec('npm install semver@' + packageJson.devDependencies.semver, function installSemverCb(
     err,
     stdout,
-    stderr,
+    stderr
   ) {
     if (err) throw err;
     checkNodeVersion();
