@@ -7,14 +7,15 @@ const reactToolboxVariables = {
 
 // PostCSS-Loader config options
 module.exports = {
-  plugins: [
-    require('postcss-cssnext')({
+  plugins: {
+    'postcss-cssnext': {
       features: {
         customProperties: {
           variables: reactToolboxVariables,
         },
       },
-    }),
-    require('postcss-modules-values'),
-  ],
+    },
+    'postcss-import': {},
+    'postcss-modules-values': {},
+  },
 };

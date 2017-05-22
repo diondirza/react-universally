@@ -58,6 +58,13 @@ export default function webpackConfigFactory(buildOptions) {
     throw new Error('No bundle configuration exists for target:', target);
   }
 
+  const cssLoaderOptions = (options: {}) => ({
+    modules: options.modules || true,
+    importLoaders: options.importLoaders || 1,
+    localIdentName: options.localIdentName ||
+      '[name]__[local]___[hash:base64:5]',
+  });
+
   let webpackConfig = {
     // Define our entry chunks for our bundle.
     entry: {
@@ -409,11 +416,7 @@ export default function webpackConfigFactory(buildOptions) {
             'style-loader',
             {
               path: 'css-loader',
-              query: {
-                modules: true,
-                importLoaders: 1,
-                localIdentName: '[name]__[local]___[hash:base64:5]',
-              },
+              query: cssLoaderOptions({ importLoaders: 1 }),
             },
             'postcss-loader',
           ],
@@ -428,20 +431,19 @@ export default function webpackConfigFactory(buildOptions) {
             'style-loader',
             {
               path: 'css-loader',
-              query: {
-                modules: true,
-                importLoaders: 2,
-                localIdentName: '[name]__[local]___[hash:base64:5]',
-              },
+              query: cssLoaderOptions({ importLoaders: 2 }),
             },
             'postcss-loader',
             {
               path: 'sass-loader',
               query: {
-                sourceMap: true,
-                sourceMapContents: true,
                 outputStyle: 'expanded',
-                includePaths: [path.resolve(appRootDir.get(), './node_modules/compass-mixins/lib')],
+                includePaths: [
+                  path.resolve(
+                    appRootDir.get(),
+                    './node_modules/compass-mixins/lib',
+                  ),
+                ],
               },
             },
           ],
@@ -462,7 +464,9 @@ export default function webpackConfigFactory(buildOptions) {
           // details on what loader is being implemented.
           loader: 'happypack/loader?id=happypack-javascript',
           include: removeNil([
-            ...bundleConfig.srcPaths.map(srcPath => path.resolve(appRootDir.get(), srcPath)),
+            ...bundleConfig.srcPaths.map(srcPath =>
+              path.resolve(appRootDir.get(), srcPath),
+            ),
             ifProdClient(path.resolve(appRootDir.get(), 'src/html')),
           ]),
         },
@@ -485,19 +489,9 @@ export default function webpackConfigFactory(buildOptions) {
                 use: [
                   {
                     loader: 'css-loader',
-                    options: {
-                      modules: true,
-                      importLoaders: 1,
-                      localIdentName: '[name]__[local]___[hash:base64:5]',
-                    },
+                    options: cssLoaderOptions({ importLoaders: 1 }),
                   },
-                  {
-                    loader: 'postcss-loader',
-                    options: {
-                      sourceMap: true,
-                      sourceComments: true,
-                    },
-                  },
+                  'postcss-loader',
                 ],
               }),
             })),
@@ -505,11 +499,7 @@ export default function webpackConfigFactory(buildOptions) {
               loaders: [
                 {
                   loader: 'css-loader/locals',
-                  options: {
-                    modules: true,
-                    importLoaders: 1,
-                    localIdentName: '[name]__[local]___[hash:base64:5]',
-                  },
+                  options: cssLoaderOptions({ importLoaders: 1 }),
                 },
                 'postcss-loader',
               ],
@@ -535,11 +525,7 @@ export default function webpackConfigFactory(buildOptions) {
                 use: [
                   {
                     loader: 'css-loader',
-                    options: {
-                      modules: true,
-                      importLoaders: 2,
-                      localIdentName: '[name]__[local]___[hash:base64:5]',
-                    },
+                    options: cssLoaderOptions({ importLoaders: 2 }),
                   },
                   { loader: 'postcss-loader' },
                   {
@@ -547,7 +533,10 @@ export default function webpackConfigFactory(buildOptions) {
                     options: {
                       outputStyle: 'expanded',
                       includePaths: [
-                        path.resolve(appRootDir.get(), './node_modules/compass-mixins/lib'),
+                        path.resolve(
+                          appRootDir.get(),
+                          './node_modules/compass-mixins/lib',
+                        ),
                       ],
                     },
                   },
@@ -558,11 +547,7 @@ export default function webpackConfigFactory(buildOptions) {
               loaders: [
                 {
                   loader: 'css-loader/locals',
-                  options: {
-                    modules: true,
-                    importLoaders: 2,
-                    localIdentName: '[name]__[local]___[hash:base64:5]',
-                  },
+                  options: cssLoaderOptions({ importLoaders: 2 }),
                 },
                 'postcss-loader',
                 'sass-loader',
@@ -576,7 +561,10 @@ export default function webpackConfigFactory(buildOptions) {
         // serving the client bundle as a Single Page Application through the
         // server.
         ifElse(isClient || isServer)(() => ({
-          test: new RegExp(`\\.(${config('bundleAssetTypes').join('|')})$`, 'i'),
+          test: new RegExp(
+            `\\.(${config('bundleAssetTypes').join('|')})$`,
+            'i',
+          ),
           loader: 'file-loader',
           query: {
             // What is the web path that the client bundle will be served from?
