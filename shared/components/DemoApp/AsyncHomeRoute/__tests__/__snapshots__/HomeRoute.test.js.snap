@@ -22,6 +22,7 @@ exports[`<HomeRoute /> renders 1`] = `
     floating={true}
     hint=""
     label="Notes"
+    mapThemrProps={[Function]}
     multiline={false}
     name="notes"
     onChange={[Function]}
