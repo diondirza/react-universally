@@ -1,6 +1,6 @@
 import appRootDir from 'app-root-dir';
 import AssetsPlugin from 'assets-webpack-plugin';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
 import nodeExternals from 'webpack-node-externals';
 import path from 'path';
@@ -66,6 +66,9 @@ export default function webpackConfigFactory(buildOptions) {
   let webpackConfig = {
     // Webpack Mode
     mode: ifDev('development', 'production'),
+    // Add context for resolving entry points and loaders from configuration
+    // it is recommended to define the context
+    context: appRootDir.get(),
     // Define our entry chunks for our bundle.
     entry: {
       // We name our entry files "index" as it makes it easier for us to
@@ -331,9 +334,9 @@ export default function webpackConfigFactory(buildOptions) {
       // CSS files.
       ifProdClient(
         () =>
-          new ExtractTextPlugin({
-            filename: '[name]-[contenthash].css',
-            allChunks: true,
+          new MiniCssExtractPlugin({
+            filename: '[name]-[chunkhash].css',
+            chunkFilename: '[name]-[chunkhash].css',
           }),
       ),
 
@@ -484,16 +487,13 @@ export default function webpackConfigFactory(buildOptions) {
                 // an ExtractTextPlugin instance.
                 // Note: The ExtractTextPlugin needs to be registered within the
                 // plugins section too.
-                ifProdClient(() => ({
-                  loader: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: ['css-loader'],
-                  }),
-                })),
+                ifProdClient({
+                  use: [MiniCssExtractPlugin.loader, 'css-loader'],
+                }),
                 // When targetting the server we use the "/locals" version of the
                 // css loader, as we don't need any css files for the server.
                 ifNode({
-                  loaders: ['css-loader/locals'],
+                  use: ['css-loader/locals'],
                 }),
               ),
             ),

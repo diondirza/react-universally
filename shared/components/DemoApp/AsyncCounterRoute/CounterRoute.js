@@ -1,6 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { Component } from 'react';
 
+import './styles.css';
+
 class CounterRoute extends Component {
   constructor(props) {
     super(props);
@@ -15,7 +17,7 @@ class CounterRoute extends Component {
   render() {
     return (
       <div>
-        <h3>Counter</h3>
+        <h3 className="counter__title">Counter</h3>
         <p>
           <em>
             This is a small demo component that contains state. It's useful for
